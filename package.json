@@ -1,0 +1,21 @@
+{
+  "name": "2016-01-blackjack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "open SpecRunner.html",
+    "start": "open index.html && coffee --output compiled --map --watch --compile ./"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sanfordcb/2016-01-blackjack.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sanfordcb/2016-01-blackjack/issues"
+  },
+  "homepage": "https://github.com/sanfordcb/2016-01-blackjack#readme"
+}
