@@ -2,8 +2,6 @@
 # Notes:
 # We're assuming the dealer stands on all 17's ( soft or not )
 
-# Write Tests
-# Deal with busts
 # Make rendered score reflect ace correctly
 # Refresh game at round end
   # Use same shuffled stack for each round
@@ -15,6 +13,8 @@ class window.Game extends Backbone.Model
     @set 'playerHand', deck.dealPlayer()
     @set 'dealerHand', deck.dealDealer()
     @get('playerHand').on 'stand', @roundEnd
+    @get('playerHand').on 'playerBust', =>
+      @notifyWinner('Dealer')
 
   roundEnd: =>
     @get('dealerHand').each (card) ->
@@ -24,13 +24,15 @@ class window.Game extends Backbone.Model
     @notifyWinner(winner)
 
   notifyWinner: (winner) ->
-    @trigger 'notifyWinner', winner, @
+    if winner then @trigger 'notifyWinner', winner
 
   # TODO: deal with tie ?
   compareScores: (playerScore, dealerScore) ->
     playerScore = @getScore(playerScore)
     dealerScore = @getScore(dealerScore)
-    if playerScore > dealerScore then 'Player' else 'Dealer'
+    if dealerScore > 21 then 'Player'
+    else if playerScore is dealerScore then false
+    else if playerScore > dealerScore then 'Player' else 'Dealer'
 
   getScore: (score) ->
     if not score[1]
@@ -42,8 +44,6 @@ class window.Game extends Backbone.Model
     else if score[0] > score[1] then score[0] else score[1]
 
   dealerRoundEnd: () ->
-    if @getScore(@get('dealerHand').scores()) > 17 then undefined else @get('dealerHand').hit()
-    if @getScore(@get('dealerHand').scores()) > 17 then undefined else @dealerRoundEnd()
-
-  # events:
-  #   'stand': -> console.log 'call stand'
+    score = @getScore(@get('dealerHand').scores())
+    if score > 17 then undefined else @get('dealerHand').hit()
+    if score > 17 then undefined else @dealerRoundEnd()
