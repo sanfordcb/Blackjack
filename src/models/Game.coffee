@@ -14,7 +14,10 @@ class window.Game extends Backbone.Model
     @set 'dealerHand', deck.dealDealer()
     @get('playerHand').on 'stand', @roundEnd
     @get('playerHand').on 'playerBust', =>
+      @newRound();
       @notifyWinner('Dealer')
+    @get('playerHand').on 'outOfCards', @makeNewDeck
+    @get('dealerHand').on 'outOfCards', @makeNewDeck
 
   roundEnd: =>
     @get('dealerHand').each (card) ->
@@ -22,11 +25,27 @@ class window.Game extends Backbone.Model
     @dealerRoundEnd()
     winner = @compareScores(@get('playerHand').scores(), @get('dealerHand').scores())
     @notifyWinner(winner)
+    @newRound()
 
   notifyWinner: (winner) ->
     if winner then @trigger 'notifyWinner', winner
 
-  # TODO: deal with tie ?
+  recordScores: ->
+    playerScore = @getScore(@get('playerHand').scores())
+    dealerScore = @getScore(@get('dealerHand').scores())
+    @trigger 'recordScores', [playerScore, dealerScore]
+
+  newRound: ->
+    @recordScores()
+    if @get('deck').length < 4 then @makeNewDeck()
+    @get('playerHand').reset([@get('deck').pop(), @get('deck').pop()])
+    @get('dealerHand').reset([@get('deck').pop().flip(), @get('deck').pop()])
+
+  makeNewDeck: =>
+    @set 'deck', deck = new Deck()
+    @get('playerHand').deck = deck
+    @get('dealerHand').deck = deck
+
   compareScores: (playerScore, dealerScore) ->
     playerScore = @getScore(playerScore)
     dealerScore = @getScore(dealerScore)
